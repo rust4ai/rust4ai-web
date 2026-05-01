@@ -99,14 +99,20 @@ export default function ProjectEditor() {
     }
   }
 
-  async function handlePublish() {
+  const isPublished = existing?.status === 'published'
+
+  async function handleTogglePublish() {
     if (!id) return
     try {
-      await api.admin.projects.publish(id)
+      if (isPublished) {
+        await api.admin.projects.unpublish(id)
+      } else {
+        await api.admin.projects.publish(id)
+      }
       await queryClient.invalidateQueries({ queryKey: ['admin-projects'] })
-      alert('Published!')
+      await queryClient.invalidateQueries({ queryKey: ['admin-project', id] })
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Publish failed')
+      alert(err instanceof Error ? err.message : 'Failed')
     }
   }
 
@@ -255,17 +261,22 @@ export default function ProjectEditor() {
             disabled={saving}
             className="px-6 py-2.5 bg-ink text-white text-sm font-semibold rounded-lg hover:bg-ink/80 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Save draft'}
+            {saving ? 'Saving...' : 'Save'}
           </button>
           {!isNew && (
             <>
-              <button
-                type="button"
-                onClick={handlePublish}
-                className="px-6 py-2.5 bg-rust text-white text-sm font-semibold rounded-lg hover:bg-rust/90 transition-colors"
-              >
-                Publish
-              </button>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <span className="text-sm font-medium text-muted">{isPublished ? 'Published' : 'Draft'}</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={isPublished}
+                  onClick={handleTogglePublish}
+                  className={`relative inline-flex h-6 w-11 shrink-0 rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-rust/30 ${isPublished ? 'bg-rust' : 'bg-ink/20'}`}
+                >
+                  <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow transform transition duration-200 ease-in-out ${isPublished ? 'translate-x-5' : 'translate-x-0'}`} />
+                </button>
+              </label>
               <button
                 type="button"
                 onClick={handleDelete}

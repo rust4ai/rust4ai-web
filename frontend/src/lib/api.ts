@@ -80,6 +80,10 @@ export const api = {
         request<{ ok: boolean }>(`/api/admin/posts/${id}/publish`, {
           method: 'POST',
         }),
+      unpublish: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/posts/${id}/unpublish`, {
+          method: 'POST',
+        }),
       toggleFeatured: (id: string) =>
         request<{ ok: boolean }>(`/api/admin/posts/${id}/feature`, {
           method: 'POST',
@@ -105,6 +109,10 @@ export const api = {
         request<{ ok: boolean }>(`/api/admin/tutorials/${id}/publish`, {
           method: 'POST',
         }),
+      unpublish: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/tutorials/${id}/unpublish`, {
+          method: 'POST',
+        }),
       toggleFeatured: (id: string) =>
         request<{ ok: boolean }>(`/api/admin/tutorials/${id}/feature`, {
           method: 'POST',
@@ -128,6 +136,10 @@ export const api = {
         }),
       publish: (id: string) =>
         request<{ ok: boolean }>(`/api/admin/projects/${id}/publish`, {
+          method: 'POST',
+        }),
+      unpublish: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/projects/${id}/unpublish`, {
           method: 'POST',
         }),
       toggleFeatured: (id: string) =>

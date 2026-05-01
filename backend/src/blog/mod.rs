@@ -23,5 +23,6 @@ pub fn admin_routes() -> Router<AppState> {
         .route("/admin/posts/{id}", put(admin::update_post))
         .route("/admin/posts/{id}", delete(admin::delete_post))
         .route("/admin/posts/{id}/publish", post(admin::publish_post))
+        .route("/admin/posts/{id}/unpublish", post(admin::unpublish_post))
         .route("/admin/posts/{id}/feature", post(admin::toggle_featured))
 }

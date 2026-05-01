@@ -101,6 +101,18 @@ pub async fn publish_tutorial(
     Ok(Json(serde_json::json!({ "ok": true })))
 }
 
+pub async fn unpublish_tutorial(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let db = state.db()?;
+    let ok = repo::unpublish(db, id).await?;
+    if !ok {
+        return Err(AppError::NotFound);
+    }
+    Ok(Json(serde_json::json!({ "ok": true })))
+}
+
 pub async fn toggle_featured(
     State(state): State<AppState>,
     Path(id): Path<Uuid>,

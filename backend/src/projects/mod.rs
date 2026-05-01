@@ -23,5 +23,6 @@ pub fn admin_routes() -> Router<AppState> {
         .route("/admin/projects/{id}", put(admin::update_project))
         .route("/admin/projects/{id}", delete(admin::delete_project))
         .route("/admin/projects/{id}/publish", post(admin::publish_project))
+        .route("/admin/projects/{id}/unpublish", post(admin::unpublish_project))
         .route("/admin/projects/{id}/feature", post(admin::toggle_featured))
 }
