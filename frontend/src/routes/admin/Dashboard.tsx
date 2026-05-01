@@ -71,6 +71,13 @@ export default function Dashboard() {
           <h2 className="font-bold text-lg mb-1">Subscribers</h2>
           <p className="text-sm text-ink/70">View and export newsletter subscribers.</p>
         </Link>
+        <Link
+          to="/admin/media"
+          className="block p-6 bg-white border border-ink/10 rounded-2xl hover:scale-[1.02] transition-transform"
+        >
+          <h2 className="font-bold text-lg mb-1">Media</h2>
+          <p className="text-sm text-ink/70">Upload and manage images for content.</p>
+        </Link>
       </div>
     </div>
   )

@@ -10,6 +10,7 @@ mod auth;
 mod blog;
 mod config;
 mod error;
+mod media;
 mod newsletter;
 mod newsletters;
 mod projects;
@@ -73,7 +74,38 @@ async fn main() -> anyhow::Result<()> {
         None
     };
 
-    let app_state = state::AppState::new(pool, fa, cfg);
+    // Initialize S3 client if configured
+    let s3 = if cfg.has_s3() {
+        let creds = aws_sdk_s3::config::Credentials::new(
+            cfg.s3_access_key.as_deref().unwrap_or_default(),
+            cfg.s3_secret_key.as_deref().unwrap_or_default(),
+            None,
+            None,
+            "env",
+        );
+        let region = aws_sdk_s3::config::Region::new(
+            cfg.s3_region.clone().unwrap_or_else(|| "us-east-1".to_string()),
+        );
+        let mut s3_config = aws_sdk_s3::Config::builder()
+            .credentials_provider(creds)
+            .region(region)
+            .behavior_version_latest();
+
+        if let Some(ref endpoint) = cfg.s3_endpoint {
+            s3_config = s3_config
+                .endpoint_url(endpoint)
+                .force_path_style(true);
+        }
+
+        let client = aws_sdk_s3::Client::from_conf(s3_config.build());
+        tracing::info!("S3 client initialized");
+        Some(client)
+    } else {
+        tracing::warn!("S3 not configured — media uploads disabled");
+        None
+    };
+
+    let app_state = state::AppState::new(pool, fa, s3, cfg);
 
     // Build API routes — always mount them, they'll return errors if DB isn't there
     let api = Router::new()
@@ -88,6 +120,7 @@ async fn main() -> anyhow::Result<()> {
                 .merge(tutorials::admin_routes())
                 .merge(projects::admin_routes())
                 .merge(newsletters::admin_routes())
+                .merge(media::admin_routes())
                 .merge(admin::routes())
                 .layer(axum::middleware::from_fn_with_state(
                     app_state.clone(),

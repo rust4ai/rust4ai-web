@@ -37,6 +37,10 @@ validator = { version = "0.19", features = ["derive"] }
 rand = "0.8"
 base64 = "0.22"
 futureauth = { version = "0.5", features = ["axum-integration"] }
+aws-config = "1"
+aws-sdk-s3 = "1"
+sha2 = "0.10"
+axum-extra = { version = "0.10", features = ["multipart"] }
 
 [build-dependencies]
 # No build deps needed — rust-embed handles it at compile time

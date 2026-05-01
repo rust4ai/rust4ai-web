@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent } from 'react'
+import { useState, useEffect, useRef, FormEvent } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
@@ -7,6 +7,7 @@ import rehypeHighlight from 'rehype-highlight'
 import { useSession } from '../../lib/auth'
 import { api } from '../../lib/api'
 import MarkdownEditor from '../../components/MarkdownEditor'
+import ImageUpload from '../../components/ImageUpload'
 
 function slugify(text: string) {
   return text
@@ -33,6 +34,8 @@ export default function ProjectEditor() {
   const [featured, setFeatured] = useState(false)
   const [saving, setSaving] = useState(false)
   const [autoSlug, setAutoSlug] = useState(true)
+  const [insertingImage, setInsertingImage] = useState(false)
+  const insertFileRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (!authLoading && !user) navigate('/admin/login')
@@ -156,7 +159,7 @@ export default function ProjectEditor() {
           />
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium mb-1">Tags (comma-separated)</label>
             <input
@@ -164,15 +167,6 @@ export default function ProjectEditor() {
               onChange={(e) => setTagsInput(e.target.value)}
               className="w-full px-4 py-2.5 rounded-lg border border-ink/10 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-rust/30"
               placeholder="burn, framework"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Cover image URL</label>
-            <input
-              value={coverUrl}
-              onChange={(e) => setCoverUrl(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-lg border border-ink/10 text-sm focus:outline-none focus:ring-2 focus:ring-rust/30"
-              placeholder="https://..."
             />
           </div>
           <div>
@@ -185,6 +179,8 @@ export default function ProjectEditor() {
             />
           </div>
         </div>
+
+        <ImageUpload value={coverUrl} onUploaded={(url) => setCoverUrl(url)} />
 
         <div>
           <label className="block text-sm font-medium mb-1">Repository URL</label>
@@ -209,7 +205,37 @@ export default function ProjectEditor() {
 
         <div className="grid lg:grid-cols-2 gap-6">
           <div>
-            <label className="block text-sm font-medium mb-1">Content (Markdown)</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="block text-sm font-medium">Content (Markdown)</label>
+              <button
+                type="button"
+                onClick={() => insertFileRef.current?.click()}
+                disabled={insertingImage}
+                className="text-xs px-2 py-1 bg-ink/5 rounded hover:bg-ink/10 transition-colors"
+              >
+                {insertingImage ? 'Uploading...' : 'Insert Image'}
+              </button>
+              <input
+                ref={insertFileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (!file) return
+                  setInsertingImage(true)
+                  try {
+                    const item = await api.admin.media.upload(file)
+                    setBodyMd((prev) => prev + `\n![${item.filename}](${item.url})\n`)
+                  } catch (err) {
+                    alert(err instanceof Error ? err.message : 'Upload failed')
+                  } finally {
+                    setInsertingImage(false)
+                    e.target.value = ''
+                  }
+                }}
+              />
+            </div>
             <MarkdownEditor value={bodyMd} onChange={setBodyMd} />
           </div>
           <div>

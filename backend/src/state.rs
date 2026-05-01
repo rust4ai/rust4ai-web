@@ -9,6 +9,7 @@ pub struct AppState {
     pub db: Option<PgPool>,
     pub auth: Option<Arc<FutureAuth>>,
     pub resend: Option<Arc<Resend>>,
+    pub s3: Option<aws_sdk_s3::Client>,
     pub config: Config,
 }
 
@@ -22,6 +23,7 @@ impl AppState {
     pub fn new(
         db: Option<PgPool>,
         auth: Option<Arc<FutureAuth>>,
+        s3: Option<aws_sdk_s3::Client>,
         config: Config,
     ) -> Self {
         let resend = config
@@ -32,6 +34,7 @@ impl AppState {
             db,
             auth,
             resend,
+            s3,
             config,
         }
     }
@@ -41,6 +44,14 @@ impl AppState {
             .as_ref()
             .ok_or(crate::error::AppError::BadRequest(
                 "Database not configured".into(),
+            ))
+    }
+
+    pub fn s3(&self) -> Result<&aws_sdk_s3::Client, crate::error::AppError> {
+        self.s3
+            .as_ref()
+            .ok_or(crate::error::AppError::BadRequest(
+                "S3 not configured".into(),
             ))
     }
 

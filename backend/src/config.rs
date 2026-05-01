@@ -45,4 +45,8 @@ impl Config {
     pub fn has_auth(&self) -> bool {
         self.futureauth_secret_key.is_some() && self.database_url.is_some()
     }
+
+    pub fn has_s3(&self) -> bool {
+        self.s3_bucket.is_some() && self.s3_access_key.is_some() && self.s3_secret_key.is_some()
+    }
 }

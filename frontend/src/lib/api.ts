@@ -170,6 +170,25 @@ export const api = {
       exportCsv: () =>
         fetch(`${BASE}/api/admin/subscribers.csv`, { credentials: 'include' }),
     },
+    media: {
+      list: () => request<MediaItem[]>('/api/admin/media'),
+      upload: async (file: File): Promise<MediaItem> => {
+        const form = new FormData()
+        form.append('file', file)
+        const res = await fetch(`${BASE}/api/admin/media/upload`, {
+          method: 'POST',
+          credentials: 'include',
+          body: form,
+        })
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}))
+          throw new Error(data.error || `Upload failed: ${res.status}`)
+        }
+        return res.json()
+      },
+      delete: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/media/${id}`, { method: 'DELETE' }),
+    },
   },
 }
 
@@ -293,6 +312,16 @@ export interface CreateNewsletterData {
   cover_image_url?: string
   tags: string[]
   featured?: boolean
+}
+
+export interface MediaItem {
+  id: string
+  sha256: string
+  filename: string
+  content_type: string
+  size_bytes: number
+  url: string
+  created_at: string
 }
 
 export interface SubscribersResponse {

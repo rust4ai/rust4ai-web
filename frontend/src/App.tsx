@@ -23,6 +23,7 @@ import ProjectEditor from './routes/admin/ProjectEditor'
 import NewsletterList from './routes/admin/NewsletterList'
 import NewsletterEditor from './routes/admin/NewsletterEditor'
 import Subscribers from './routes/admin/Subscribers'
+import MediaList from './routes/admin/MediaList'
 
 export default function App() {
   return (
@@ -55,6 +56,7 @@ export default function App() {
           <Route path="/admin/newsletters/new" element={<NewsletterEditor />} />
           <Route path="/admin/newsletters/:id" element={<NewsletterEditor />} />
           <Route path="/admin/subscribers" element={<Subscribers />} />
+          <Route path="/admin/media" element={<MediaList />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
