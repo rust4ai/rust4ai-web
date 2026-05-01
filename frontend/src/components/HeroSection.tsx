@@ -21,13 +21,22 @@ interface HeroProps {
 
 export default function HeroSection({ recentPosts }: HeroProps) {
   const [wordIndex, setWordIndex] = useState(0)
+  const [charCount, setCharCount] = useState(1)
 
   useEffect(() => {
     const interval = setInterval(() => {
       setWordIndex((i) => (i + 1) % ROTATING_WORDS.length)
+      setCharCount(1)
     }, 3000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    const fullLen = ROTATING_WORDS[wordIndex].word.length
+    if (charCount >= fullLen) return
+    const timer = setTimeout(() => setCharCount((c) => c + 1), 60)
+    return () => clearTimeout(timer)
+  }, [charCount, wordIndex])
 
   const cards = recentPosts.length > 0
     ? recentPosts.slice(0, 4)
@@ -38,7 +47,8 @@ export default function HeroSection({ recentPosts }: HeroProps) {
         { slug: '#', title: 'Deploying ML models with Rust', tags: ['deploy', 'inference'] },
       ]
 
-  const { word, color } = ROTATING_WORDS[wordIndex]
+  const { word: fullWord, color } = ROTATING_WORDS[wordIndex]
+  const word = fullWord.slice(0, charCount)
 
   return (
     <>
