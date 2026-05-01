@@ -42,5 +42,27 @@
     "video_url": null,
     "tags": ["cli", "image-generation", "api-client", "media"],
     "featured": true
+  },
+  {
+    "slug": "rust4all-template",
+    "title": "Rust4All Template",
+    "excerpt": "A production-ready full-stack webapp template using Rust (Axum) + React (TypeScript). Clone, run, build — no API keys or configuration needed.",
+    "body_md": "# Rust4All Template\n\nThe full-stack Rust webapp template that just works. **Clone. Run. Build.** No API keys, no configuration, no headaches.\n\n## 30-Second Start\n\n```bash\ngit clone git@github.com:rust4ai/rust4all-template.git my-app\ncd my-app\ncp .env.example .env\n./dev.sh\n```\n\n`dev.sh` handles everything: starts PostgreSQL (Docker), the Rust backend, and the React dev server.\n\n## Stack\n\n| Layer | Tech |\n|-------|------|\n| **API** | Axum 0.8 + Tokio |\n| **Database** | PostgreSQL + SQLx |\n| **Auth** | Google OAuth / dev login + JWT |\n| **Frontend** | React 19 + TypeScript + Vite 8 |\n| **Styling** | Tailwind CSS 4 |\n| **State** | Zustand |\n| **Deploy** | Docker + Railway |\n\n## Key Features\n\n- **Zero-config development** — boots with an empty `.env`, dev-mode email login included\n- **Production auth** — Google OAuth with JWT, ready for real users\n- **One Docker image** — multi-stage build, deploy anywhere\n- **Compile-time checked SQL** — SQLx ensures your queries are correct at build time\n- **In-app docs** — markdown documentation served from a `/docs` route",
+    "cover_image_url": null,
+    "repo_url": "https://github.com/rust4ai/rust4all-template",
+    "video_url": null,
+    "tags": ["template", "fullstack", "axum", "react"],
+    "featured": true
+  },
+  {
+    "slug": "spice",
+    "title": "Spice",
+    "excerpt": "A Rust test framework for nondeterministic LLM agents — validate tool calls, arguments, security boundaries, and more with built-in retry and consensus.",
+    "body_md": "# Spice\n\nA Rust test framework for nondeterministic LLM agents. Spice lets you write declarative test suites that validate your AI agent's behavior — which tools it calls, what arguments it passes, what text it produces, and whether it stays within security boundaries.\n\n## Key Features\n\n- **Fluent test builder** — chain assertions like `.expect_tools()`, `.expect_text_contains()`, `.forbid_tools()`\n- **30+ built-in assertions** — tool usage, argument validation, call counts, ordering, turn ranges, security allowlists, and custom closures\n- **Retry & consensus** — retry flaky tests N times, or require M-of-N runs to pass\n- **Concurrent runner** — run tests in parallel with configurable concurrency\n- **Trace recording** — every agent run is saved as JSON for debugging\n- **Security assertions** — verify agents only call allowed tools, even under adversarial prompts\n- **Multi-turn support** — assert tool usage across specific turns\n- **Bring your own agent** — implement one trait (`AgentUnderTest`) to test any agent, any LLM provider\n\n## Quick Start\n\n```rust\nuse spice_framework::*;\nuse serde_json::json;\n\nlet suite = suite(\"My Agent Tests\", vec![\n    test(\"calls-tool\", \"Do the thing\")\n        .name(\"Should call myTool\")\n        .expect_tools(&[\"myTool\"])\n        .expect_tool_args_contain(\"myTool\", json!({\"key\": \"value\"}))\n        .retries(2)\n        .build(),\n\n    test(\"no-tools-on-greeting\", \"Hello!\")\n        .name(\"Greeting should not trigger tools\")\n        .expect_no_tools()\n        .build(),\n]);\n```",
+    "cover_image_url": null,
+    "repo_url": "https://github.com/rust4ai/spice",
+    "video_url": null,
+    "tags": ["testing", "llm", "agents", "security"],
+    "featured": true
   }
 ]
