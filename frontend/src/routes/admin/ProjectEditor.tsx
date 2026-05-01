@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, FormEvent } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -125,6 +125,7 @@ export default function ProjectEditor() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
+      <Link to="/admin" className="text-sm text-muted hover:text-ink transition-colors mb-4 inline-block">&larr; Dashboard</Link>
       <h1 className="text-3xl font-bold mb-8">{isNew ? 'New Project' : 'Edit Project'}</h1>
 
       <form onSubmit={handleSave} className="space-y-6">

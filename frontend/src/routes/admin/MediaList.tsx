@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSession } from '../../lib/auth'
 import { api, MediaItem } from '../../lib/api'
@@ -47,6 +47,7 @@ export default function MediaList() {
 
   return (
     <div className="max-w-6xl mx-auto px-6 py-10">
+      <Link to="/admin" className="text-sm text-muted hover:text-ink transition-colors mb-4 inline-block">&larr; Dashboard</Link>
       <h1 className="text-3xl font-bold mb-8">Media Library</h1>
 
       <div className="mb-8 max-w-sm">

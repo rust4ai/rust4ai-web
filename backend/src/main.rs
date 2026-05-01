@@ -141,6 +141,7 @@ async fn main() -> anyhow::Result<()> {
     }
 
     let app = app
+        .merge(media::public_routes())
         .nest("/api", api)
         .fallback(static_assets::static_handler)
         .layer(CompressionLayer::new())

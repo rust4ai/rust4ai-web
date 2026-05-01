@@ -3,6 +3,11 @@ use crate::state::AppState;
 
 mod handlers;
 
+pub fn public_routes() -> Router<AppState> {
+    Router::new()
+        .route("/media/{key}", get(handlers::serve))
+}
+
 pub fn admin_routes() -> Router<AppState> {
     Router::new()
         .route("/admin/media/upload", post(handlers::upload))

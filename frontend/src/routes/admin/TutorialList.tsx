@@ -29,6 +29,7 @@ export default function TutorialList() {
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-10">
+      <Link to="/admin" className="text-sm text-muted hover:text-ink transition-colors mb-4 inline-block">&larr; Dashboard</Link>
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-3xl font-bold">Tutorials</h1>
         <Link
