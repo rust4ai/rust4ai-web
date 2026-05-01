@@ -200,6 +200,11 @@ export const api = {
       },
       delete: (id: string) =>
         request<{ ok: boolean }>(`/api/admin/media/${id}`, { method: 'DELETE' }),
+      generate: (prompt: string, style: string) =>
+        request<MediaItem>('/api/admin/media/generate', {
+          method: 'POST',
+          body: JSON.stringify({ prompt, style }),
+        }),
     },
   },
 }

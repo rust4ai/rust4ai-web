@@ -66,8 +66,8 @@ async fn main() -> anyhow::Result<()> {
                     title = EXCLUDED.title,
                     excerpt = EXCLUDED.excerpt,
                     body_md = EXCLUDED.body_md,
-                    cover_image_url = EXCLUDED.cover_image_url,
-                    video_url = EXCLUDED.video_url,
+                    cover_image_url = COALESCE(EXCLUDED.cover_image_url, tutorials.cover_image_url),
+                    video_url = COALESCE(EXCLUDED.video_url, tutorials.video_url),
                     tags = EXCLUDED.tags,
                     featured = EXCLUDED.featured,
                     updated_at = now()"
@@ -101,9 +101,9 @@ async fn main() -> anyhow::Result<()> {
                     title = EXCLUDED.title,
                     excerpt = EXCLUDED.excerpt,
                     body_md = EXCLUDED.body_md,
-                    cover_image_url = EXCLUDED.cover_image_url,
-                    repo_url = EXCLUDED.repo_url,
-                    video_url = EXCLUDED.video_url,
+                    cover_image_url = COALESCE(EXCLUDED.cover_image_url, projects.cover_image_url),
+                    repo_url = COALESCE(EXCLUDED.repo_url, projects.repo_url),
+                    video_url = COALESCE(EXCLUDED.video_url, projects.video_url),
                     tags = EXCLUDED.tags,
                     featured = EXCLUDED.featured,
                     updated_at = now()"
@@ -159,7 +159,7 @@ async fn seed_posts(pool: &sqlx::PgPool, seed_dir: &Path) -> anyhow::Result<()> 
                 body_md = EXCLUDED.body_md,
                 tags = EXCLUDED.tags,
                 featured = EXCLUDED.featured,
-                cover_image_url = EXCLUDED.cover_image_url,
+                cover_image_url = COALESCE(EXCLUDED.cover_image_url, posts.cover_image_url),
                 updated_at = now()"
         )
         .bind(&frontmatter.slug)

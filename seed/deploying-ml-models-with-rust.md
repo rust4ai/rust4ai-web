@@ -9,7 +9,7 @@ cover_image_url:
 
 # Deploying ML Models with Rust
 
-You've trained your model in Python — now what? Deploying ML models in production requires low latency, high throughput, and reliability. Rust gives you all three. In this guide, we'll build a model-serving API using Axum and ONNX Runtime.
+So you have trained your model with Burn - now what? Deploying ML models in production requires low latency, high throughput, and reliability. Rust gives you all three. In this guide, we'll build a model-serving API using Axum and ONNX Runtime.
 
 :::ai-image
 prompt: A sleek production server rack with glowing orange neural network connections, Rust gear logo on the side, dark background with warm lighting
