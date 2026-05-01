@@ -1,6 +1,7 @@
 use crate::config::Config;
 use futureauth::FutureAuth;
 use resend_rs::Resend;
+use s3::Bucket;
 use sqlx::PgPool;
 use std::sync::Arc;
 
@@ -9,7 +10,7 @@ pub struct AppState {
     pub db: Option<PgPool>,
     pub auth: Option<Arc<FutureAuth>>,
     pub resend: Option<Arc<Resend>>,
-    pub s3: Option<aws_sdk_s3::Client>,
+    pub s3: Option<Arc<Bucket>>,
     pub config: Config,
 }
 
@@ -23,7 +24,7 @@ impl AppState {
     pub fn new(
         db: Option<PgPool>,
         auth: Option<Arc<FutureAuth>>,
-        s3: Option<aws_sdk_s3::Client>,
+        s3: Option<Arc<Bucket>>,
         config: Config,
     ) -> Self {
         let resend = config
@@ -47,9 +48,10 @@ impl AppState {
             ))
     }
 
-    pub fn s3(&self) -> Result<&aws_sdk_s3::Client, crate::error::AppError> {
+    pub fn s3(&self) -> Result<&Bucket, crate::error::AppError> {
         self.s3
             .as_ref()
+            .map(|b| b.as_ref())
             .ok_or(crate::error::AppError::BadRequest(
                 "S3 not configured".into(),
             ))

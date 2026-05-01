@@ -76,30 +76,26 @@ async fn main() -> anyhow::Result<()> {
 
     // Initialize S3 client if configured
     let s3 = if cfg.has_s3() {
-        let creds = aws_sdk_s3::config::Credentials::new(
-            cfg.s3_access_key.as_deref().unwrap_or_default(),
-            cfg.s3_secret_key.as_deref().unwrap_or_default(),
+        let region = s3::Region::Custom {
+            region: cfg.s3_region.clone().unwrap_or_else(|| "us-east-1".to_string()),
+            endpoint: cfg.s3_endpoint.clone().unwrap_or_default(),
+        };
+        let credentials = s3::creds::Credentials::new(
+            cfg.s3_access_key.as_deref(),
+            cfg.s3_secret_key.as_deref(),
             None,
             None,
-            "env",
-        );
-        let region = aws_sdk_s3::config::Region::new(
-            cfg.s3_region.clone().unwrap_or_else(|| "us-east-1".to_string()),
-        );
-        let mut s3_config = aws_sdk_s3::Config::builder()
-            .credentials_provider(creds)
-            .region(region)
-            .behavior_version_latest();
+            None,
+        )
+        .expect("Failed to create S3 credentials");
 
-        if let Some(ref endpoint) = cfg.s3_endpoint {
-            s3_config = s3_config
-                .endpoint_url(endpoint)
-                .force_path_style(true);
-        }
+        let bucket_name = cfg.s3_bucket.as_deref().unwrap_or("default");
+        let bucket = s3::Bucket::new(bucket_name, region, credentials)
+            .expect("Failed to create S3 bucket")
+            .with_path_style();
 
-        let client = aws_sdk_s3::Client::from_conf(s3_config.build());
         tracing::info!("S3 client initialized");
-        Some(client)
+        Some(std::sync::Arc::from(bucket))
     } else {
         tracing::warn!("S3 not configured — media uploads disabled");
         None

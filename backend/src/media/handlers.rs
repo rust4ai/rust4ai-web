@@ -2,11 +2,10 @@ use axum::{
     body::Body,
     extract::{Path, State},
     http::{header, StatusCode},
-    response::{IntoResponse, Response},
+    response::Response,
     Json,
 };
 use axum_extra::extract::Multipart;
-use aws_sdk_s3::primitives::ByteStream;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use sqlx::FromRow;
@@ -80,16 +79,9 @@ pub async fn upload(
         .to_lowercase();
 
     let s3_key = format!("media/{}.{}", hash, ext);
-    let bucket = state.config.s3_bucket.as_ref()
-        .ok_or_else(|| AppError::BadRequest("S3 bucket not configured".into()))?;
 
     // Upload to S3
-    s3.put_object()
-        .bucket(bucket)
-        .key(&s3_key)
-        .body(ByteStream::from(bytes.clone()))
-        .content_type(&content_type)
-        .send()
+    s3.put_object_with_content_type(&s3_key, &bytes, &content_type)
         .await
         .map_err(|e| AppError::Internal(anyhow::anyhow!("S3 upload failed: {e}")))?;
 
@@ -154,14 +146,8 @@ pub async fn delete_media(
         .to_lowercase();
     let s3_key = format!("media/{}.{}", item.sha256, ext);
 
-    let bucket = state.config.s3_bucket.as_ref()
-        .ok_or_else(|| AppError::BadRequest("S3 bucket not configured".into()))?;
-
     // Delete from S3
-    s3.delete_object()
-        .bucket(bucket)
-        .key(&s3_key)
-        .send()
+    s3.delete_object(&s3_key)
         .await
         .map_err(|e| AppError::Internal(anyhow::anyhow!("S3 delete failed: {e}")))?;
 
@@ -180,28 +166,23 @@ pub async fn serve(
     Path(key): Path<String>,
 ) -> Result<Response, AppError> {
     let s3 = state.s3()?;
-    let bucket = state.config.s3_bucket.as_ref()
-        .ok_or_else(|| AppError::BadRequest("S3 bucket not configured".into()))?;
 
     let s3_key = format!("media/{}", key);
 
-    let result = s3.get_object()
-        .bucket(bucket)
-        .key(&s3_key)
-        .send()
+    let result = s3.get_object(&s3_key)
         .await
         .map_err(|e| {
             tracing::warn!("S3 get failed for {}: {e}", s3_key);
             AppError::NotFound
         })?;
 
-    let content_type = result.content_type()
-        .unwrap_or("application/octet-stream")
-        .to_string();
+    let content_type = result
+        .headers()
+        .get("content-type")
+        .map(|v| v.to_string())
+        .unwrap_or_else(|| "application/octet-stream".to_string());
 
-    let bytes = result.body.collect().await
-        .map_err(|e| AppError::Internal(anyhow::anyhow!("S3 read failed: {e}")))?
-        .into_bytes();
+    let bytes = result.bytes().to_vec();
 
     Ok(Response::builder()
         .status(StatusCode::OK)
