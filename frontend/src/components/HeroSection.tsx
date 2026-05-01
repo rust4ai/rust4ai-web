@@ -1,14 +1,34 @@
+import { useState, useEffect } from 'react'
 import NewsletterForm from './NewsletterForm'
 import ProjectCard from './ProjectCard'
 
 const CARD_COLORS = ['bg-card-sage', 'bg-card-lilac', 'bg-card-rose', 'bg-card-amber'] as const
 const LABELS = ['TUTORIAL', 'DEEP DIVE', 'NEW', 'SPICE'] as const
 
+const ROTATING_WORDS = [
+  { word: 'scale', color: '#0E0E10' },
+  { word: 'blog', color: '#C8D4C5' },
+  { word: 'assist', color: '#D4CBE0' },
+  { word: 'chat', color: '#E5BFC0' },
+  { word: 'code', color: '#E5C896' },
+  { word: 'clip', color: '#CE422B' },
+  { word: 'think', color: '#D4A547' },
+] as const
+
 interface HeroProps {
   recentPosts: { slug: string; title: string; tags: string[] }[]
 }
 
 export default function HeroSection({ recentPosts }: HeroProps) {
+  const [wordIndex, setWordIndex] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setWordIndex((i) => (i + 1) % ROTATING_WORDS.length)
+    }, 3000)
+    return () => clearInterval(interval)
+  }, [])
+
   const cards = recentPosts.length > 0
     ? recentPosts.slice(0, 4)
     : [
@@ -17,6 +37,8 @@ export default function HeroSection({ recentPosts }: HeroProps) {
         { slug: '#', title: 'Candle vs Burn benchmark', tags: ['candle', 'burn'] },
         { slug: '#', title: 'Deploying ML models with Rust', tags: ['deploy', 'inference'] },
       ]
+
+  const { word, color } = ROTATING_WORDS[wordIndex]
 
   return (
     <>
@@ -34,7 +56,15 @@ export default function HeroSection({ recentPosts }: HeroProps) {
             <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-extrabold leading-[1.05] tracking-tight">
               Rust + AI,
               <br />
-              agents that scale.
+              agents that{' '}
+              <span
+                key={word}
+                style={{ color }}
+                className="inline-block transition-colors duration-500"
+              >
+                {word}
+              </span>
+              .
             </h1>
 
             <p className="text-lg sm:text-xl text-muted max-w-xl leading-relaxed">
