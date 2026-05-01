@@ -78,8 +78,8 @@ export default function HeroSection({ recentPosts }: HeroProps) {
             </h1>
 
             <p className="text-lg sm:text-xl text-muted max-w-xl leading-relaxed">
-              Deep-dives on building AI systems in Rust. Burn, Rig, Candle, agents,
-              inference engines — no fluff, just code.
+              Our mission is to advance and popularize rust for ai agents.
+              Burn, Rig, Candle, Spice, and more.
             </p>
 
             <div className="max-w-md space-y-4">
