@@ -5,7 +5,7 @@ mod handlers;
 
 pub fn admin_routes() -> Router<AppState> {
     Router::new()
-        .route("/api/admin/media/upload", post(handlers::upload))
-        .route("/api/admin/media", get(handlers::list))
-        .route("/api/admin/media/{id}", delete(handlers::delete_media))
+        .route("/admin/media/upload", post(handlers::upload))
+        .route("/admin/media", get(handlers::list))
+        .route("/admin/media/{id}", delete(handlers::delete_media))
 }
