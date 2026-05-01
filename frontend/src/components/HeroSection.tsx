@@ -21,16 +21,7 @@ export default function HeroSection({ recentPosts }: HeroProps) {
   return (
     <>
       {/* Spice desert banner */}
-      <div className="desert-banner h-[280px] sm:h-[320px] flex items-center justify-center">
-        <div className="moon" />
-        <div className="dune-layer dune-1" />
-        <div className="dune-layer dune-2" />
-        <div className="relative z-10 text-center px-6">
-          <p className="text-moon/80 text-sm font-mono tracking-widest uppercase">
-            Rust + AI deep-dives, weekly
-          </p>
-        </div>
-      </div>
+      <div className="desert-banner h-8" />
 
       {/* Huddle-style hero: large headline left, card stack right */}
       <section className="max-w-[1400px] mx-auto px-8 py-16 lg:py-24">

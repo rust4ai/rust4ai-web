@@ -12,7 +12,7 @@ export default function Nav() {
             Blog
           </Link>
           <a
-            href="https://youtube.com/@rust4ai"
+            href="https://www.youtube.com/channel/UCT5iK89Xx-q6-GWcj2VGCHg"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:opacity-60 transition-opacity"

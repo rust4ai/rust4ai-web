@@ -7,7 +7,7 @@ export default function Footer() {
           <a href="https://github.com/rust4ai" target="_blank" rel="noopener noreferrer" className="hover:text-ink transition-colors">
             GitHub
           </a>
-          <a href="https://twitter.com/rust4ai" target="_blank" rel="noopener noreferrer" className="hover:text-ink transition-colors">
+          <a href="https://x.com/rust4ai" target="_blank" rel="noopener noreferrer" className="hover:text-ink transition-colors">
             Twitter
           </a>
         </div>
