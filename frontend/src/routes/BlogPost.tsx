@@ -51,7 +51,7 @@ export default function BlogPost() {
             </time>
           )}
           {post.tags.map((t) => (
-            <span key={t} className="text-xs font-mono px-2 py-0.5 rounded-full bg-rust-soft text-rust">
+            <span key={t} className="text-xs font-mono px-2 py-0.5 rounded-full bg-sand/10 text-rust">
               #{t}
             </span>
           ))}
@@ -63,6 +63,16 @@ export default function BlogPost() {
           <p className="text-lg text-muted mt-4 leading-relaxed">{post.excerpt}</p>
         )}
       </header>
+
+      {post.cover_image_url && (
+        <div className="mb-10 -mx-6 sm:mx-0">
+          <img
+            src={post.cover_image_url}
+            alt={post.title}
+            className="w-full rounded-xl shadow-md object-cover max-h-[400px]"
+          />
+        </div>
+      )}
 
       <div className="prose prose-lg max-w-none">
         <ReactMarkdown remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeHighlight]}>

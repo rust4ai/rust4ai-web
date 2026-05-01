@@ -26,6 +26,14 @@ pub async fn list_posts(
     Ok(Json(posts))
 }
 
+pub async fn featured_posts(
+    State(state): State<AppState>,
+) -> Result<Json<Vec<repo::PostSummary>>, AppError> {
+    let db = state.db()?;
+    let posts = repo::list_featured(db).await?;
+    Ok(Json(posts))
+}
+
 pub async fn get_post(
     State(state): State<AppState>,
     Path(slug): Path<String>,

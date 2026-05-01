@@ -5,6 +5,11 @@ pub struct Config {
     pub futureauth_secret_key: Option<String>,
     pub app_url: String,
     pub admin_emails: Vec<String>,
+    pub s3_endpoint: Option<String>,
+    pub s3_bucket: Option<String>,
+    pub s3_access_key: Option<String>,
+    pub s3_secret_key: Option<String>,
+    pub s3_region: Option<String>,
 }
 
 impl Config {
@@ -21,6 +26,11 @@ impl Config {
                 .map(|s| s.trim().to_lowercase())
                 .filter(|s| !s.is_empty())
                 .collect(),
+            s3_endpoint: std::env::var("S3_ENDPOINT").ok(),
+            s3_bucket: std::env::var("S3_BUCKET").ok(),
+            s3_access_key: std::env::var("S3_ACCESS_KEY").ok(),
+            s3_secret_key: std::env::var("S3_SECRET_KEY").ok(),
+            s3_region: std::env::var("S3_REGION").ok(),
         }
     }
 

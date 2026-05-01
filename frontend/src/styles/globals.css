@@ -6,24 +6,6 @@ body {
   min-height: 100vh;
 }
 
-/* Prose styling for blog posts */
-.prose h1, .prose h2, .prose h3 {
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.prose pre {
-  @apply bg-night text-moon rounded-lg p-4 overflow-x-auto;
-}
-
-.prose code {
-  @apply font-mono text-sm;
-}
-
-.prose a {
-  @apply text-sand-dark underline underline-offset-2;
-}
-
 /* Desert night banner gradient */
 .desert-banner {
   background: linear-gradient(180deg, #141B2D 0%, #1C2640 50%, #2A3352 100%);

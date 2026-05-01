@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import NewsletterForm from './NewsletterForm'
 import ProjectCard from './ProjectCard'
 
@@ -99,6 +100,12 @@ export default function HeroSection({ recentPosts }: HeroProps) {
                 label={LABELS[i % LABELS.length]}
               />
             ))}
+            <Link
+              to="/blog"
+              className="inline-block mt-2 text-sm font-semibold text-ink hover:opacity-60 transition-opacity"
+            >
+              Read all blogs &rarr;
+            </Link>
           </div>
         </div>
       </section>

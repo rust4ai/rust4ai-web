@@ -7,18 +7,16 @@ export default function Nav() {
         <Link to="/" className="font-display font-extrabold text-2xl tracking-tight uppercase">
           rust4ai
         </Link>
-        <nav className="flex items-center gap-8 text-[15px] font-medium text-ink">
-          <Link to="/blog" className="hover:opacity-60 transition-opacity">
-            Blog
+        <nav className="flex items-center gap-8 text-[15px] font-medium text-ink mr-auto ml-16">
+          <Link to="/tutorials" className="hover:opacity-60 transition-opacity">
+            Learn
           </Link>
-          <a
-            href="https://www.youtube.com/channel/UCT5iK89Xx-q6-GWcj2VGCHg"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:opacity-60 transition-opacity"
-          >
-            YouTube
-          </a>
+          <Link to="/projects" className="hover:opacity-60 transition-opacity">
+            Featured
+          </Link>
+          <Link to="/newsletter" className="hover:opacity-60 transition-opacity">
+            Newsletter
+          </Link>
         </nav>
       </div>
     </header>

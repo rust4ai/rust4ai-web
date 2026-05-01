@@ -1,0 +1,46 @@
+[
+  {
+    "slug": "burn",
+    "title": "Burn",
+    "excerpt": "A comprehensive deep learning framework built in Rust with a focus on flexibility, compute efficiency, and portability.",
+    "body_md": "# Burn\n\nBurn is a deep learning framework built in Rust that supports multiple backends (wgpu, tch, candle, ndarray) and provides a complete ecosystem for training and deploying models.\n\n## Key Features\n\n- **Multi-backend**: Switch between CPU, GPU, and browser (WASM) with a single line\n- **Type-safe**: Compile-time tensor shape verification\n- **Modular**: Use only what you need\n- **Fast**: Zero-cost abstractions and optimized compute kernels\n\n## Getting Started\n\n```rust\nuse burn::prelude::*;\n```\n\nVisit the Burn Book for comprehensive tutorials and API reference.",
+    "cover_image_url": null,
+    "repo_url": "https://github.com/tracel-ai/burn",
+    "video_url": null,
+    "tags": ["deep-learning", "framework", "gpu"],
+    "featured": true
+  },
+  {
+    "slug": "rig",
+    "title": "Rig",
+    "excerpt": "An open-source Rust library for building scalable, modular, and ergonomic LLM-powered applications.",
+    "body_md": "# Rig\n\nRig is a Rust library for building LLM-powered applications. It provides high-level abstractions for common LLM patterns while maintaining full control over the underlying behavior.\n\n## Key Features\n\n- **Provider-agnostic**: OpenAI, Anthropic, Cohere, and more\n- **Tool use**: Define typed tools with automatic schema generation\n- **RAG**: Built-in vector store integrations\n- **Agents**: Multi-step reasoning with tool calling\n\n## Example\n\n```rust\nlet agent = openai_client\n    .agent(\"gpt-4\")\n    .preamble(\"You are a helpful assistant.\")\n    .tool(MyCustomTool)\n    .build();\n```",
+    "cover_image_url": null,
+    "repo_url": "https://github.com/0xPlaygrounds/rig",
+    "video_url": null,
+    "tags": ["llm", "agents", "rag"],
+    "featured": true
+  },
+  {
+    "slug": "ort",
+    "title": "ort",
+    "excerpt": "Safe, ergonomic Rust bindings for ONNX Runtime — run any ONNX model with GPU acceleration in production.",
+    "body_md": "# ort\n\nort provides safe Rust bindings to Microsoft's ONNX Runtime, the industry standard for high-performance ML inference.\n\n## Key Features\n\n- **Any model**: Run models from PyTorch, TensorFlow, scikit-learn, etc.\n- **GPU support**: CUDA, TensorRT, DirectML, CoreML\n- **Safe API**: Rust's type system prevents common errors\n- **Production-ready**: Used in production at scale\n\n## Quick Start\n\n```rust\nlet session = Session::builder()?\n    .with_model_from_file(\"model.onnx\")?;\n```",
+    "cover_image_url": null,
+    "repo_url": "https://github.com/pykeio/ort",
+    "video_url": null,
+    "tags": ["inference", "onnx", "production"],
+    "featured": true
+  },
+  {
+    "slug": "starflask",
+    "title": "Starflask",
+    "excerpt": "Rust client library and CLI for the Starflask API — generate images, videos, 3D models, and more from the command line or your Rust code.",
+    "body_md": "# Starflask\n\nStarflask is a Rust CLI and client library for the [Starflask](https://starflask.com) API. It lets you generate images, videos, 3D models, and process media — all from your terminal or Rust code.\n\n## Install\n\n```bash\ncargo install starflask\n```\n\n## Why Starflask?\n\nStarflask shines when used inside AI coding assistants like Claude Code. You can generate images on the fly without leaving your terminal — perfect for creating thumbnails, banners, and assets while building web apps.\n\n![Using Starflask in Claude Code](/starflask_use.png)\n\n## CLI Quick Start\n\n```bash\n# Store your API key\nstarflask auth set sk-your-key-here\n\n# Generate an image\nstarflask jobs create image --payload '{\"prompt\": \"a fox in a forest\"}'\n\n# Wait for it to finish\nstarflask jobs wait <job-id>\n\n# Animate a still image\nstarflask animate ./photo.png --prompt \"gentle waves\" --duration 5 --wait\n```\n\n## Library Usage\n\n```rust\nuse starflask::Client;\n\n#[tokio::main]\nasync fn main() -> Result<(), starflask::Error> {\n    let client = Client::new(\"sk-your-key\");\n\n    let job = client.create_job(\"image\", Some(serde_json::json!({\n        \"prompt\": \"a fox in a forest\"\n    }))).await?;\n\n    let result = client.wait_for_job(\n        job.get_id().unwrap(),\n        std::time::Duration::from_secs(3),\n        std::time::Duration::from_secs(300),\n    ).await?;\n    println!(\"Status: {:?}\", result.status);\n\n    Ok(())\n}\n```\n\n## CLI Commands\n\n| Command | Description |\n|---------|-------------|\n| `auth` | Manage API credentials |\n| `me` | Show user info and credit balance |\n| `models` | List available models |\n| `styles` | List available image styles |\n| `jobs` | Create and monitor jobs |\n| `animate` | Animate a still image into video |\n| `media` | Upload, download, and process media |\n| `api-keys` | Manage API keys |",
+    "cover_image_url": "/starflask_use.png",
+    "repo_url": "https://github.com/nichochar/starflask-monorepo",
+    "video_url": null,
+    "tags": ["cli", "image-generation", "api-client", "media"],
+    "featured": true
+  }
+]

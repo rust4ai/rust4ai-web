@@ -24,6 +24,36 @@ export const api = {
       return request<PostSummary[]>(`/api/posts${qs ? `?${qs}` : ''}`)
     },
     get: (slug: string) => request<Post>(`/api/posts/${slug}`),
+    featured: () => request<PostSummary[]>('/api/posts/featured'),
+  },
+  tutorials: {
+    list: (params?: { page?: number }) => {
+      const q = new URLSearchParams()
+      if (params?.page) q.set('page', String(params.page))
+      const qs = q.toString()
+      return request<TutorialSummary[]>(`/api/tutorials${qs ? `?${qs}` : ''}`)
+    },
+    get: (slug: string) => request<Tutorial>(`/api/tutorials/${slug}`),
+    featured: () => request<TutorialSummary[]>('/api/tutorials/featured'),
+  },
+  projects: {
+    list: (params?: { page?: number }) => {
+      const q = new URLSearchParams()
+      if (params?.page) q.set('page', String(params.page))
+      const qs = q.toString()
+      return request<ProjectSummary[]>(`/api/projects${qs ? `?${qs}` : ''}`)
+    },
+    get: (slug: string) => request<Project>(`/api/projects/${slug}`),
+    featured: () => request<ProjectSummary[]>('/api/projects/featured'),
+  },
+  newsletters: {
+    list: (params?: { page?: number }) => {
+      const q = new URLSearchParams()
+      if (params?.page) q.set('page', String(params.page))
+      const qs = q.toString()
+      return request<NewsletterSummary[]>(`/api/newsletters${qs ? `?${qs}` : ''}`)
+    },
+    get: (slug: string) => request<Newsletter>(`/api/newsletters/${slug}`),
   },
   newsletter: {
     subscribe: (email: string) =>
@@ -50,8 +80,88 @@ export const api = {
         request<{ ok: boolean }>(`/api/admin/posts/${id}/publish`, {
           method: 'POST',
         }),
+      toggleFeatured: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/posts/${id}/feature`, {
+          method: 'POST',
+        }),
       delete: (id: string) =>
         request<{ ok: boolean }>(`/api/admin/posts/${id}`, {
+          method: 'DELETE',
+        }),
+    },
+    tutorials: {
+      list: () => request<TutorialSummary[]>('/api/admin/tutorials'),
+      create: (data: CreateTutorialData) =>
+        request<Tutorial>('/api/admin/tutorials', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      update: (id: string, data: CreateTutorialData) =>
+        request<{ ok: boolean }>(`/api/admin/tutorials/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
+      publish: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/tutorials/${id}/publish`, {
+          method: 'POST',
+        }),
+      toggleFeatured: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/tutorials/${id}/feature`, {
+          method: 'POST',
+        }),
+      delete: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/tutorials/${id}`, {
+          method: 'DELETE',
+        }),
+    },
+    projects: {
+      list: () => request<ProjectSummary[]>('/api/admin/projects'),
+      create: (data: CreateProjectData) =>
+        request<Project>('/api/admin/projects', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      update: (id: string, data: CreateProjectData) =>
+        request<{ ok: boolean }>(`/api/admin/projects/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
+      publish: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/projects/${id}/publish`, {
+          method: 'POST',
+        }),
+      toggleFeatured: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/projects/${id}/feature`, {
+          method: 'POST',
+        }),
+      delete: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/projects/${id}`, {
+          method: 'DELETE',
+        }),
+    },
+    newsletters: {
+      list: () => request<NewsletterSummary[]>('/api/admin/newsletters'),
+      create: (data: CreateNewsletterData) =>
+        request<Newsletter>('/api/admin/newsletters', {
+          method: 'POST',
+          body: JSON.stringify(data),
+        }),
+      update: (id: string, data: CreateNewsletterData) =>
+        request<{ ok: boolean }>(`/api/admin/newsletters/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(data),
+        }),
+      publish: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/newsletters/${id}/publish`, {
+          method: 'POST',
+        }),
+      send: (id: string) =>
+        request<{ ok: boolean; sent: number; failed: number; total_subscribers: number }>(
+          `/api/admin/newsletters/${id}/send`,
+          { method: 'POST' }
+        ),
+      delete: (id: string) =>
+        request<{ ok: boolean }>(`/api/admin/newsletters/${id}`, {
           method: 'DELETE',
         }),
     },
@@ -72,6 +182,7 @@ export interface PostSummary {
   cover_image_url: string | null
   tags: string[]
   status: string
+  featured: boolean
   published_at: string | null
   created_at: string
 }
@@ -88,6 +199,100 @@ export interface CreatePostData {
   body_md: string
   cover_image_url?: string
   tags: string[]
+  featured?: boolean
+}
+
+export interface TutorialSummary {
+  id: string
+  slug: string
+  title: string
+  excerpt: string | null
+  cover_image_url: string | null
+  video_url: string | null
+  tags: string[]
+  status: string
+  featured: boolean
+  published_at: string | null
+  created_at: string
+}
+
+export interface Tutorial extends TutorialSummary {
+  body_md: string
+  updated_at: string
+}
+
+export interface CreateTutorialData {
+  slug: string
+  title: string
+  excerpt?: string
+  body_md: string
+  cover_image_url?: string
+  video_url?: string
+  tags: string[]
+  featured?: boolean
+}
+
+export interface ProjectSummary {
+  id: string
+  slug: string
+  title: string
+  excerpt: string | null
+  cover_image_url: string | null
+  repo_url: string | null
+  video_url: string | null
+  tags: string[]
+  status: string
+  featured: boolean
+  published_at: string | null
+  created_at: string
+}
+
+export interface Project extends ProjectSummary {
+  body_md: string
+  updated_at: string
+}
+
+export interface CreateProjectData {
+  slug: string
+  title: string
+  excerpt?: string
+  body_md: string
+  cover_image_url?: string
+  repo_url?: string
+  video_url?: string
+  tags: string[]
+  featured?: boolean
+}
+
+export interface NewsletterSummary {
+  id: string
+  slug: string
+  title: string
+  excerpt: string | null
+  cover_image_url: string | null
+  tags: string[]
+  status: string
+  featured: boolean
+  sent_at: string | null
+  published_at: string | null
+  created_at: string
+}
+
+export interface Newsletter extends NewsletterSummary {
+  body_md: string
+  body_html: string | null
+  updated_at: string
+}
+
+export interface CreateNewsletterData {
+  slug: string
+  title: string
+  excerpt?: string
+  body_md: string
+  body_html?: string
+  cover_image_url?: string
+  tags: string[]
+  featured?: boolean
 }
 
 export interface SubscribersResponse {

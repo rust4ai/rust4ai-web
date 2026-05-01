@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import HeroSection from '../components/HeroSection'
+import VisionSection from '../components/VisionSection'
+import FeaturedTutorials from '../components/FeaturedTutorials'
+import FeaturedProjects from '../components/FeaturedProjects'
 import { useSearchParams } from 'react-router-dom'
 
 export default function Home() {
@@ -9,8 +12,18 @@ export default function Home() {
   const unsubscribed = searchParams.get('unsubscribed')
 
   const { data: posts } = useQuery({
-    queryKey: ['posts'],
-    queryFn: () => api.posts.list(),
+    queryKey: ['featured-posts'],
+    queryFn: () => api.posts.featured(),
+  })
+
+  const { data: tutorials } = useQuery({
+    queryKey: ['featured-tutorials'],
+    queryFn: () => api.tutorials.featured(),
+  })
+
+  const { data: projects } = useQuery({
+    queryKey: ['featured-projects'],
+    queryFn: () => api.projects.featured(),
   })
 
   return (
@@ -32,6 +45,12 @@ export default function Home() {
           posts?.map((p) => ({ slug: p.slug, title: p.title, tags: p.tags })) ?? []
         }
       />
+
+      <VisionSection />
+
+      <FeaturedTutorials tutorials={tutorials ?? []} />
+
+      <FeaturedProjects projects={projects ?? []} />
     </>
   )
 }

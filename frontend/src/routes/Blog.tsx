@@ -23,28 +23,41 @@ export default function Blog() {
           <Link
             key={post.id}
             to={`/blog/${post.slug}`}
-            className="block p-6 rounded-2xl bg-white border border-ink/5 hover:border-ink/15 transition-colors"
+            className="block rounded-2xl bg-white border border-ink/5 hover:border-ink/15 transition-colors overflow-hidden"
           >
-            <div className="flex items-center gap-3 mb-2">
-              {post.published_at && (
-                <time className="text-xs text-muted font-mono">
-                  {new Date(post.published_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })}
-                </time>
+            <div className="flex flex-col sm:flex-row">
+              {post.cover_image_url && (
+                <div className="sm:w-48 sm:flex-shrink-0">
+                  <img
+                    src={post.cover_image_url}
+                    alt={post.title}
+                    className="w-full h-40 sm:h-full object-cover"
+                  />
+                </div>
               )}
-              {post.tags.map((t) => (
-                <span key={t} className="text-xs font-mono text-rust">
-                  #{t}
-                </span>
-              ))}
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-2">
+                  {post.published_at && (
+                    <time className="text-xs text-muted font-mono">
+                      {new Date(post.published_at).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </time>
+                  )}
+                  {post.tags.map((t) => (
+                    <span key={t} className="text-xs font-mono text-rust">
+                      #{t}
+                    </span>
+                  ))}
+                </div>
+                <h2 className="text-xl font-bold">{post.title}</h2>
+                {post.excerpt && (
+                  <p className="text-muted mt-2 text-sm leading-relaxed">{post.excerpt}</p>
+                )}
+              </div>
             </div>
-            <h2 className="text-xl font-bold">{post.title}</h2>
-            {post.excerpt && (
-              <p className="text-muted mt-2 text-sm leading-relaxed">{post.excerpt}</p>
-            )}
           </Link>
         ))}
 

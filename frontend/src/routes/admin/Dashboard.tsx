@@ -44,15 +44,29 @@ export default function Dashboard() {
           <p className="text-sm text-ink/70">Create, edit, and publish blog posts.</p>
         </Link>
         <Link
-          to="/admin/posts/new"
+          to="/admin/tutorials"
           className="block p-6 bg-card-sage rounded-2xl hover:scale-[1.02] transition-transform"
         >
-          <h2 className="font-bold text-lg mb-1">New Post</h2>
-          <p className="text-sm text-ink/70">Start writing a new article.</p>
+          <h2 className="font-bold text-lg mb-1">Tutorials</h2>
+          <p className="text-sm text-ink/70">Create and manage Rust + AI tutorials.</p>
+        </Link>
+        <Link
+          to="/admin/projects"
+          className="block p-6 bg-card-amber rounded-2xl hover:scale-[1.02] transition-transform"
+        >
+          <h2 className="font-bold text-lg mb-1">Projects</h2>
+          <p className="text-sm text-ink/70">Showcase featured Rust AI projects.</p>
+        </Link>
+        <Link
+          to="/admin/newsletters"
+          className="block p-6 bg-card-rose rounded-2xl hover:scale-[1.02] transition-transform"
+        >
+          <h2 className="font-bold text-lg mb-1">Newsletters</h2>
+          <p className="text-sm text-ink/70">Write and blast newsletters to subscribers.</p>
         </Link>
         <Link
           to="/admin/subscribers"
-          className="block p-6 bg-card-amber rounded-2xl hover:scale-[1.02] transition-transform"
+          className="block p-6 bg-white border border-ink/10 rounded-2xl hover:scale-[1.02] transition-transform"
         >
           <h2 className="font-bold text-lg mb-1">Subscribers</h2>
           <p className="text-sm text-ink/70">View and export newsletter subscribers.</p>

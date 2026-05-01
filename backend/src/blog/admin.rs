@@ -26,6 +26,8 @@ pub struct CreatePostRequest {
     pub cover_image_url: Option<String>,
     #[serde(default)]
     pub tags: Vec<String>,
+    #[serde(default)]
+    pub featured: bool,
 }
 
 pub async fn create_post(
@@ -41,6 +43,7 @@ pub async fn create_post(
         &body.body_md,
         body.cover_image_url.as_deref(),
         &body.tags,
+        body.featured,
     )
     .await?;
     Ok(Json(post))
@@ -55,6 +58,7 @@ pub struct UpdatePostRequest {
     pub cover_image_url: Option<String>,
     #[serde(default)]
     pub tags: Vec<String>,
+    pub featured: Option<bool>,
 }
 
 pub async fn update_post(
@@ -72,6 +76,7 @@ pub async fn update_post(
         &body.body_md,
         body.cover_image_url.as_deref(),
         &body.tags,
+        body.featured,
     )
     .await?;
     if !updated {
@@ -88,6 +93,20 @@ pub async fn publish_post(
     let published = repo::publish(db, id).await?;
     if !published {
         return Err(AppError::NotFound);
+    }
+    Ok(Json(serde_json::json!({ "ok": true })))
+}
+
+pub async fn toggle_featured(
+    State(state): State<AppState>,
+    Path(id): Path<Uuid>,
+) -> Result<Json<serde_json::Value>, AppError> {
+    let db = state.db()?;
+    let ok = repo::toggle_featured(db, id).await?;
+    if !ok {
+        return Err(AppError::BadRequest(
+            "Cannot feature more than 4 posts. Unfeature one first.".into(),
+        ));
     }
     Ok(Json(serde_json::json!({ "ok": true })))
 }

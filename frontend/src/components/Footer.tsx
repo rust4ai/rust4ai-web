@@ -10,6 +10,9 @@ export default function Footer() {
           <a href="https://x.com/rust4ai" target="_blank" rel="noopener noreferrer" className="hover:text-ink transition-colors">
             Twitter
           </a>
+          <a href="https://www.youtube.com/channel/UCT5iK89Xx-q6-GWcj2VGCHg" target="_blank" rel="noopener noreferrer" className="hover:text-ink transition-colors">
+            YouTube
+          </a>
         </div>
       </div>
     </footer>

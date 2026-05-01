@@ -11,8 +11,11 @@ mod blog;
 mod config;
 mod error;
 mod newsletter;
+mod newsletters;
+mod projects;
 mod state;
 mod static_assets;
+mod tutorials;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -36,8 +39,7 @@ async fn main() -> anyhow::Result<()> {
             .await
         {
             Ok(pool) => {
-                sqlx::migrate!("./migrations").run(&pool).await?;
-                tracing::info!("database connected, migrations applied");
+                tracing::info!("database connected");
                 Some(pool)
             }
             Err(e) => {
@@ -77,9 +79,15 @@ async fn main() -> anyhow::Result<()> {
     let api = Router::new()
         .merge(newsletter::routes())
         .merge(blog::public_routes())
+        .merge(tutorials::public_routes())
+        .merge(projects::public_routes())
+        .merge(newsletters::public_routes())
         .merge(
             Router::new()
                 .merge(blog::admin_routes())
+                .merge(tutorials::admin_routes())
+                .merge(projects::admin_routes())
+                .merge(newsletters::admin_routes())
                 .merge(admin::routes())
                 .layer(axum::middleware::from_fn_with_state(
                     app_state.clone(),

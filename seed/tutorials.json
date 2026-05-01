@@ -1,0 +1,32 @@
+[
+  {
+    "slug": "getting-started-with-burn",
+    "title": "Getting Started with Burn",
+    "excerpt": "Learn how to build and train your first neural network using Burn, the Rust deep learning framework designed for performance and flexibility.",
+    "body_md": "# Getting Started with Burn\n\nBurn is a comprehensive deep learning framework built in Rust that prioritizes flexibility, performance, and ease of use.\n\n## Installation\n\nAdd Burn to your `Cargo.toml`:\n\n```toml\n[dependencies]\nburn = \"0.14\"\nburn-ndarray = \"0.14\"\n```\n\n## Your First Model\n\n```rust\nuse burn::prelude::*;\nuse burn::nn;\n\n#[derive(Module, Debug)]\npub struct MnistModel<B: Backend> {\n    linear1: nn::Linear<B>,\n    linear2: nn::Linear<B>,\n    activation: nn::Relu,\n}\n```\n\n## Training Loop\n\nBurn provides a built-in `Learner` that handles training with metrics, logging, and checkpointing out of the box.\n\n## Next Steps\n\n- Explore the Burn book for advanced topics\n- Try different backends (wgpu, tch, candle)\n- Build a real project with Burn",
+    "cover_image_url": null,
+    "video_url": null,
+    "tags": ["burn", "deep-learning", "getting-started"],
+    "featured": true
+  },
+  {
+    "slug": "building-ai-agent-with-rig",
+    "title": "Building an AI Agent with Rig",
+    "excerpt": "Build a fully autonomous AI agent in Rust using the Rig framework — complete with tool use, memory, and multi-step reasoning.",
+    "body_md": "# Building an AI Agent with Rig\n\nRig is a Rust library for building LLM-powered applications with a focus on ergonomics and type safety.\n\n## Setup\n\n```toml\n[dependencies]\nrig-core = \"0.6\"\ntokio = { version = \"1\", features = [\"full\"] }\n```\n\n## Creating a Simple Agent\n\n```rust\nuse rig::providers::openai;\n\n#[tokio::main]\nasync fn main() -> Result<(), anyhow::Error> {\n    let client = openai::Client::from_env();\n    \n    let agent = client\n        .agent(\"gpt-4\")\n        .preamble(\"You are a helpful Rust programming assistant.\")\n        .build();\n    \n    let response = agent.prompt(\"Explain ownership in Rust\").await?;\n    println!(\"{response}\");\n    Ok(())\n}\n```\n\n## Adding Tools\n\nRig makes it easy to define tools that your agent can use during reasoning.\n\n## RAG with Rig\n\nAdd vector search and document retrieval to ground your agent's responses in real data.",
+    "cover_image_url": null,
+    "video_url": null,
+    "tags": ["rig", "agents", "llm"],
+    "featured": true
+  },
+  {
+    "slug": "onnx-inference-with-ort",
+    "title": "ONNX Inference with ort",
+    "excerpt": "Deploy pre-trained ML models in Rust using ort — high-performance ONNX Runtime bindings for production inference.",
+    "body_md": "# ONNX Inference with ort\n\nThe `ort` crate provides safe, ergonomic Rust bindings to ONNX Runtime, enabling you to run any ONNX model at native speed.\n\n## Setup\n\n```toml\n[dependencies]\nort = \"2\"\nndarray = \"0.16\"\n```\n\n## Loading and Running a Model\n\n```rust\nuse ort::{Session, Value};\nuse ndarray::Array2;\n\nfn main() -> ort::Result<()> {\n    let session = Session::builder()?\n        .with_model_from_file(\"model.onnx\")?;\n    \n    let input = Array2::<f32>::zeros((1, 784));\n    let outputs = session.run(\n        ort::inputs![input.view()]?\n    )?;\n    \n    let predictions = outputs[0].extract_tensor::<f32>()?;\n    println!(\"Prediction: {:?}\", predictions.view());\n    Ok(())\n}\n```\n\n## Performance Tips\n\n- Use `CUDAExecutionProvider` for GPU acceleration\n- Batch inputs for throughput\n- Profile with ONNX Runtime's built-in tracing\n\n## Use Cases\n\n- Image classification and object detection\n- NLP and text embedding\n- Real-time audio processing",
+    "cover_image_url": null,
+    "video_url": null,
+    "tags": ["ort", "onnx", "inference", "deployment"],
+    "featured": true
+  }
+]

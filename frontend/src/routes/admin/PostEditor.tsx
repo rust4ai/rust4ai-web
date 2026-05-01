@@ -28,6 +28,7 @@ export default function PostEditor() {
   const [bodyMd, setBodyMd] = useState('')
   const [coverUrl, setCoverUrl] = useState('')
   const [tagsInput, setTagsInput] = useState('')
+  const [featured, setFeatured] = useState(false)
   const [saving, setSaving] = useState(false)
   const [autoSlug, setAutoSlug] = useState(true)
 
@@ -51,6 +52,7 @@ export default function PostEditor() {
       setExcerpt(existing.excerpt ?? '')
       setTagsInput(existing.tags.join(', '))
       setCoverUrl(existing.cover_image_url ?? '')
+      setFeatured(existing.featured ?? false)
       setAutoSlug(false)
       // Load full post for body
       api.posts.get(existing.slug).then((p) => setBodyMd(p.body_md)).catch(() => {})
@@ -74,6 +76,7 @@ export default function PostEditor() {
         .split(',')
         .map((t) => t.trim())
         .filter(Boolean),
+      featured,
     }
     try {
       if (isNew) {
@@ -173,6 +176,19 @@ export default function PostEditor() {
               placeholder="https://..."
             />
           </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="featured"
+            checked={featured}
+            onChange={(e) => setFeatured(e.target.checked)}
+            className="rounded border-ink/20 text-rust focus:ring-rust/30"
+          />
+          <label htmlFor="featured" className="text-sm font-medium">
+            Featured on homepage
+          </label>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6">
