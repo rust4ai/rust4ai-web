@@ -227,7 +227,9 @@ pub async fn generate_image(
     let db = state.db()?;
     let s3 = state.s3()?;
 
-    let api_key = state.config.starflask_api_key.as_deref().unwrap_or_default();
+    let api_key = state.config.starflask_api_key.as_deref()
+        .filter(|k| !k.is_empty())
+        .ok_or_else(|| AppError::BadRequest("STARFLASK_API_KEY is not configured — cannot generate images".into()))?;
 
     // Call starflask CLI to generate the image
     let payload = serde_json::json!({
