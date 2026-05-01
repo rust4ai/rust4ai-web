@@ -9,14 +9,10 @@ interface Props {
 }
 
 export default function ProjectCard({ slug, title, tags, color, label }: Props) {
-  const Wrapper = slug === '#' ? 'div' : Link
-  const props = slug === '#' ? {} : { to: `/blog/${slug}` }
+  const className = `block ${color} rounded-2xl p-6 hover:scale-[1.02] transition-transform cursor-pointer`
 
-  return (
-    <Wrapper
-      {...(props as Record<string, string>)}
-      className={`block ${color} rounded-2xl p-6 hover:scale-[1.02] transition-transform cursor-pointer`}
-    >
+  const children = (
+    <>
       {/* Status label like Huddle: dot + uppercase text */}
       <div className="flex items-center gap-2 mb-4">
         <span className="w-1.5 h-1.5 rounded-full bg-ink/50" />
@@ -39,6 +35,16 @@ export default function ProjectCard({ slug, title, tags, color, label }: Props) 
           </span>
         ))}
       </div>
-    </Wrapper>
+    </>
+  )
+
+  if (slug === '#') {
+    return <div className={className}>{children}</div>
+  }
+
+  return (
+    <Link to={`/blog/${slug}`} className={className}>
+      {children}
+    </Link>
   )
 }
