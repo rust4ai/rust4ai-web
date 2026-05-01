@@ -231,31 +231,29 @@ pub async fn generate_image(
         .filter(|k| !k.is_empty())
         .ok_or_else(|| AppError::BadRequest("STARFLASK_API_KEY is not configured — cannot generate images".into()))?;
 
-    // Call starflask CLI to generate the image
+    // Call starflask API to generate the image
     let payload = serde_json::json!({
         "prompt": req.prompt,
         "style": req.style,
     });
 
-    let output = tokio::process::Command::new("starflask")
-        .args(["jobs", "create", "image", "--payload", &payload.to_string(), "--wait"])
-        .env("STARFLASK_API_KEY", api_key)
-        .output()
-        .await
-        .map_err(|e| AppError::Internal(anyhow::anyhow!("Failed to run starflask: {e}")))?;
+    let sf_client = starflask::Client::new(api_key);
+    let job = sf_client.create_job("image", Some(payload)).await
+        .map_err(|e| AppError::BadRequest(format!("Failed to create starflask job: {e}")))?;
 
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(AppError::Internal(anyhow::anyhow!("starflask failed: {stderr}")));
-    }
+    let job_id = job.get_id()
+        .ok_or_else(|| AppError::BadRequest("starflask returned a job with no ID".into()))?;
 
-    let stdout = String::from_utf8_lossy(&output.stdout);
-    // Parse output URL - expect a URL on a line by itself
-    let image_url = stdout
-        .lines()
-        .find(|l| l.starts_with("http"))
-        .ok_or_else(|| AppError::Internal(anyhow::anyhow!("No URL in starflask output: {stdout}")))?
-        .trim();
+    let result = sf_client.wait_for_job(
+        job_id,
+        std::time::Duration::from_secs(3),
+        std::time::Duration::from_secs(300),
+    ).await
+        .map_err(|e| AppError::BadRequest(format!("starflask job failed: {e}")))?;
+
+    let image_url = result.extra.get("url")
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| AppError::BadRequest("No URL in starflask job result".into()))?;
 
     // Download the generated image
     let client = reqwest::Client::new();
