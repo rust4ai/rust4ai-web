@@ -3,11 +3,20 @@ use sqlx::postgres::PgPoolOptions;
 use std::path::Path;
 
 #[derive(Deserialize)]
+struct SeedTutorialPage {
+    title: String,
+    body_md: String,
+}
+
+#[derive(Deserialize)]
 struct SeedTutorial {
     slug: String,
     title: String,
     excerpt: Option<String>,
-    body_md: String,
+    #[serde(default)]
+    body_md: Option<String>,
+    #[serde(default)]
+    pages: Option<Vec<SeedTutorialPage>>,
     cover_image_url: Option<String>,
     video_url: Option<String>,
     tags: Vec<String>,
@@ -59,7 +68,21 @@ async fn main() -> anyhow::Result<()> {
         let tutorials: Vec<SeedTutorial> = serde_json::from_str(&content)?;
         for t in &tutorials {
             println!("  Tutorial: {}", t.title);
-            sqlx::query(
+
+            // Compute body_md from pages if available, else use body_md field
+            let body_md = if let Some(pages) = &t.pages {
+                pages.iter().map(|p| {
+                    if p.title.is_empty() {
+                        p.body_md.clone()
+                    } else {
+                        format!("# {}\n\n{}", p.title, p.body_md)
+                    }
+                }).collect::<Vec<_>>().join("\n\n---\n\n")
+            } else {
+                t.body_md.clone().unwrap_or_default()
+            };
+
+            let row: (uuid::Uuid,) = sqlx::query_as(
                 "INSERT INTO tutorials (slug, title, excerpt, body_md, cover_image_url, video_url, tags, status, published_at, featured)
                  VALUES ($1, $2, $3, $4, $5, $6, $7, 'published', now(), $8)
                  ON CONFLICT (slug) DO UPDATE SET
@@ -70,18 +93,44 @@ async fn main() -> anyhow::Result<()> {
                     video_url = COALESCE(EXCLUDED.video_url, tutorials.video_url),
                     tags = EXCLUDED.tags,
                     featured = EXCLUDED.featured,
-                    updated_at = now()"
+                    updated_at = now()
+                 RETURNING id"
             )
             .bind(&t.slug)
             .bind(&t.title)
             .bind(&t.excerpt)
-            .bind(&t.body_md)
+            .bind(&body_md)
             .bind(&t.cover_image_url)
             .bind(&t.video_url)
             .bind(&t.tags)
             .bind(t.featured)
-            .execute(&pool)
+            .fetch_one(&pool)
             .await?;
+
+            let tutorial_id = row.0;
+
+            // Upsert pages
+            if let Some(pages) = &t.pages {
+                // Delete existing pages
+                sqlx::query("DELETE FROM tutorial_pages WHERE tutorial_id = $1")
+                    .bind(tutorial_id)
+                    .execute(&pool)
+                    .await?;
+
+                for (i, page) in pages.iter().enumerate() {
+                    sqlx::query(
+                        "INSERT INTO tutorial_pages (tutorial_id, page_number, title, body_md)
+                         VALUES ($1, $2, $3, $4)"
+                    )
+                    .bind(tutorial_id)
+                    .bind((i + 1) as i32)
+                    .bind(&page.title)
+                    .bind(&page.body_md)
+                    .execute(&pool)
+                    .await?;
+                }
+                println!("    -> {} pages", pages.len());
+            }
         }
         println!("  Seeded {} tutorials.", tutorials.len());
     }

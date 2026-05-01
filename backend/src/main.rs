@@ -2,6 +2,7 @@ use axum::{routing::get, Router};
 use futureauth::{FutureAuth, FutureAuthConfig};
 use sqlx::postgres::PgPoolOptions;
 use std::net::SocketAddr;
+use tower_governor::{governor::GovernorConfigBuilder, GovernorLayer};
 use tower_http::{compression::CompressionLayer, trace::TraceLayer};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -103,9 +104,16 @@ async fn main() -> anyhow::Result<()> {
 
     let app_state = state::AppState::new(pool, fa, s3, cfg);
 
+    // Rate limiter: 5 requests per 60 seconds per IP for sensitive endpoints
+    let rate_limit_config = GovernorConfigBuilder::default()
+        .per_second(12) // replenish 1 token every 12 seconds
+        .burst_size(5)  // allow burst of 5 requests
+        .finish()
+        .expect("Failed to build rate limiter config");
+
     // Build API routes — always mount them, they'll return errors if DB isn't there
     let api = Router::new()
-        .merge(newsletter::routes())
+        .merge(newsletter::routes().layer(GovernorLayer::new(rate_limit_config)))
         .merge(blog::public_routes())
         .merge(tutorials::public_routes())
         .merge(projects::public_routes())
@@ -127,12 +135,20 @@ async fn main() -> anyhow::Result<()> {
     let mut app = Router::new()
         .route("/healthz", get(|| async { "ok" }));
 
+    // Rate limiter for auth routes: 5 requests per 60 seconds per IP
+    let auth_rate_limit = GovernorConfigBuilder::default()
+        .per_second(12)
+        .burst_size(5)
+        .finish()
+        .expect("Failed to build auth rate limiter config");
+
     // Only mount auth routes if FutureAuth is configured
     if app_state.auth.is_some() {
         app = app.merge(
             futureauth::axum::auth_router::<state::AppState>(
                 app_state.auth.clone().unwrap(),
-            ),
+            )
+            .layer(GovernorLayer::new(auth_rate_limit)),
         );
     }
 

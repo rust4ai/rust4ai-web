@@ -53,6 +53,23 @@ pub async fn upload(
     let filename = filename.unwrap_or_else(|| "upload".to_string());
     let content_type = content_type.unwrap_or_else(|| "application/octet-stream".to_string());
 
+    // Validate content type against allowlist
+    const ALLOWED_TYPES: &[&str] = &[
+        "image/png",
+        "image/jpeg",
+        "image/jpg",
+        "image/webp",
+        "image/gif",
+        "image/svg+xml",
+        "image/avif",
+    ];
+    if !ALLOWED_TYPES.contains(&content_type.as_str()) {
+        return Err(AppError::BadRequest(format!(
+            "File type '{}' not allowed. Allowed types: PNG, JPEG, WebP, GIF, SVG, AVIF",
+            content_type
+        )));
+    }
+
     // Compute SHA256
     let mut hasher = Sha256::new();
     hasher.update(&bytes);
@@ -166,6 +183,11 @@ pub async fn serve(
     Path(key): Path<String>,
 ) -> Result<Response, AppError> {
     let s3 = state.s3()?;
+
+    // Reject path traversal attempts
+    if key.contains("..") || key.contains('/') || key.contains('\\') {
+        return Err(AppError::BadRequest("Invalid media key".into()));
+    }
 
     let s3_key = format!("media/{}", key);
 

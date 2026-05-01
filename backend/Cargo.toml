@@ -41,6 +41,7 @@ rust-s3 = { version = "0.35", features = ["tokio-rustls-tls"], default-features 
 sha2 = "0.10"
 axum-extra = { version = "0.10", features = ["multipart"] }
 reqwest = { version = "0.12", features = ["rustls-tls"], default-features = false }
+tower_governor = "0.8"
 
 [build-dependencies]
 # No build deps needed — rust-embed handles it at compile time
