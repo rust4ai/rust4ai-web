@@ -51,7 +51,7 @@ async fn main() -> anyhow::Result<()> {
     };
 
     // Initialize FutureAuth if configured
-    let fa = if let (Some(ref pool), Some(ref secret)) =
+    let fa = if let (Some(pool), Some(secret)) =
         (&pool, &cfg.futureauth_secret_key)
     {
         let fa = FutureAuth::new(
