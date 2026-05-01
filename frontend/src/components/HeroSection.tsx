@@ -34,7 +34,7 @@ export default function HeroSection({ recentPosts }: HeroProps) {
             <h1 className="text-[clamp(2.5rem,6vw,5rem)] font-extrabold leading-[1.05] tracking-tight">
               Rust + AI,
               <br />
-              grow with us.
+              agents that scale.
             </h1>
 
             <p className="text-lg sm:text-xl text-muted max-w-xl leading-relaxed">
