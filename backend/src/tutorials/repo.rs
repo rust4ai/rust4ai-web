@@ -1,9 +1,26 @@
 use chrono::{DateTime, Utc};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sqlx::{FromRow, PgPool};
 use uuid::Uuid;
 
 #[derive(Serialize, FromRow)]
+pub struct TutorialRow {
+    pub id: Uuid,
+    pub slug: String,
+    pub title: String,
+    pub excerpt: Option<String>,
+    pub body_md: String,
+    pub cover_image_url: Option<String>,
+    pub video_url: Option<String>,
+    pub tags: Vec<String>,
+    pub status: String,
+    pub featured: bool,
+    pub published_at: Option<DateTime<Utc>>,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
+}
+
+#[derive(Serialize)]
 pub struct Tutorial {
     pub id: Uuid,
     pub slug: String,
@@ -18,6 +35,23 @@ pub struct Tutorial {
     pub published_at: Option<DateTime<Utc>>,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
+    pub pages: Vec<TutorialPage>,
+    pub total_pages: i32,
+}
+
+#[derive(Serialize, FromRow, Clone)]
+pub struct TutorialPage {
+    pub id: Uuid,
+    pub tutorial_id: Uuid,
+    pub page_number: i32,
+    pub title: String,
+    pub body_md: String,
+}
+
+#[derive(Deserialize)]
+pub struct PageInput {
+    pub title: String,
+    pub body_md: String,
 }
 
 #[derive(Serialize, FromRow)]
@@ -58,13 +92,21 @@ pub async fn list_featured(pool: &PgPool) -> Result<Vec<TutorialSummary>, sqlx::
 }
 
 pub async fn get_published_by_slug(pool: &PgPool, slug: &str) -> Result<Option<Tutorial>, sqlx::Error> {
-    sqlx::query_as::<_, Tutorial>(
+    let row = sqlx::query_as::<_, TutorialRow>(
         "SELECT id, slug, title, excerpt, body_md, cover_image_url, video_url, tags, status, featured, published_at, created_at, updated_at
          FROM tutorials WHERE slug = $1 AND status = 'published'",
     )
     .bind(slug)
     .fetch_optional(pool)
-    .await
+    .await?;
+
+    match row {
+        Some(r) => {
+            let pages = list_pages(pool, r.id).await?;
+            Ok(Some(tutorial_from_row(r, pages)))
+        }
+        None => Ok(None),
+    }
 }
 
 pub async fn list_all(pool: &PgPool) -> Result<Vec<TutorialSummary>, sqlx::Error> {
@@ -77,13 +119,77 @@ pub async fn list_all(pool: &PgPool) -> Result<Vec<TutorialSummary>, sqlx::Error
 }
 
 pub async fn get_by_id(pool: &PgPool, id: Uuid) -> Result<Option<Tutorial>, sqlx::Error> {
-    sqlx::query_as::<_, Tutorial>(
+    let row = sqlx::query_as::<_, TutorialRow>(
         "SELECT id, slug, title, excerpt, body_md, cover_image_url, video_url, tags, status, featured, published_at, created_at, updated_at
          FROM tutorials WHERE id = $1",
     )
     .bind(id)
     .fetch_optional(pool)
+    .await?;
+
+    match row {
+        Some(r) => {
+            let pages = list_pages(pool, r.id).await?;
+            Ok(Some(tutorial_from_row(r, pages)))
+        }
+        None => Ok(None),
+    }
+}
+
+fn tutorial_from_row(r: TutorialRow, pages: Vec<TutorialPage>) -> Tutorial {
+    let total_pages = pages.len() as i32;
+    Tutorial {
+        id: r.id,
+        slug: r.slug,
+        title: r.title,
+        excerpt: r.excerpt,
+        body_md: r.body_md,
+        cover_image_url: r.cover_image_url,
+        video_url: r.video_url,
+        tags: r.tags,
+        status: r.status,
+        featured: r.featured,
+        published_at: r.published_at,
+        created_at: r.created_at,
+        updated_at: r.updated_at,
+        pages,
+        total_pages,
+    }
+}
+
+pub async fn list_pages(pool: &PgPool, tutorial_id: Uuid) -> Result<Vec<TutorialPage>, sqlx::Error> {
+    sqlx::query_as::<_, TutorialPage>(
+        "SELECT id, tutorial_id, page_number, title, body_md
+         FROM tutorial_pages WHERE tutorial_id = $1
+         ORDER BY page_number",
+    )
+    .bind(tutorial_id)
+    .fetch_all(pool)
     .await
+}
+
+pub async fn upsert_pages(pool: &PgPool, tutorial_id: Uuid, pages: &[PageInput]) -> Result<(), sqlx::Error> {
+    // Delete existing pages
+    sqlx::query("DELETE FROM tutorial_pages WHERE tutorial_id = $1")
+        .bind(tutorial_id)
+        .execute(pool)
+        .await?;
+
+    // Insert new pages
+    for (i, page) in pages.iter().enumerate() {
+        sqlx::query(
+            "INSERT INTO tutorial_pages (tutorial_id, page_number, title, body_md)
+             VALUES ($1, $2, $3, $4)",
+        )
+        .bind(tutorial_id)
+        .bind((i + 1) as i32)
+        .bind(&page.title)
+        .bind(&page.body_md)
+        .execute(pool)
+        .await?;
+    }
+
+    Ok(())
 }
 
 pub async fn insert(
@@ -96,8 +202,8 @@ pub async fn insert(
     video_url: Option<&str>,
     tags: &[String],
     featured: bool,
-) -> Result<Tutorial, sqlx::Error> {
-    sqlx::query_as::<_, Tutorial>(
+) -> Result<TutorialRow, sqlx::Error> {
+    sqlx::query_as::<_, TutorialRow>(
         "INSERT INTO tutorials (slug, title, excerpt, body_md, cover_image_url, video_url, tags, featured)
          VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
          RETURNING id, slug, title, excerpt, body_md, cover_image_url, video_url, tags, status, featured, published_at, created_at, updated_at",
@@ -162,7 +268,7 @@ pub async fn update(
 }
 
 pub async fn toggle_featured(pool: &PgPool, id: Uuid) -> Result<bool, sqlx::Error> {
-    let row = sqlx::query_as::<_, Tutorial>(
+    let row = sqlx::query_as::<_, TutorialRow>(
         "SELECT id, slug, title, excerpt, body_md, cover_image_url, video_url, tags, status, featured, published_at, created_at, updated_at
          FROM tutorials WHERE id = $1",
     )

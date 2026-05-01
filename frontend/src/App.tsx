@@ -36,6 +36,7 @@ export default function App() {
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/tutorials" element={<Tutorials />} />
           <Route path="/tutorials/:slug" element={<TutorialPost />} />
+          <Route path="/tutorials/:slug/:page" element={<TutorialPost />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/projects/:slug" element={<ProjectPost />} />
           <Route path="/newsletter" element={<Newsletters />} />

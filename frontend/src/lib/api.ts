@@ -252,8 +252,16 @@ export interface TutorialSummary {
   created_at: string
 }
 
+export interface TutorialPage {
+  page_number: number
+  title: string
+  body_md: string
+}
+
 export interface Tutorial extends TutorialSummary {
   body_md: string
+  pages: TutorialPage[]
+  total_pages: number
   updated_at: string
 }
 
@@ -261,7 +269,8 @@ export interface CreateTutorialData {
   slug: string
   title: string
   excerpt?: string
-  body_md: string
+  body_md?: string
+  pages: { title: string; body_md: string }[]
   cover_image_url?: string
   video_url?: string
   tags: string[]
