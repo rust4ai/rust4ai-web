@@ -13,7 +13,7 @@ RUN npm run build
 ############################
 # Stage 2: cargo-chef plan
 ############################
-FROM lukemathwalker/cargo-chef:latest-rust-1.91 AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.91-bookworm AS chef
 WORKDIR /app
 
 FROM chef AS planner
@@ -30,7 +30,7 @@ RUN cargo chef cook --release --recipe-path recipe.json
 COPY Cargo.toml Cargo.lock ./
 COPY backend/ ./backend/
 COPY --from=frontend-builder /app/frontend/dist ./frontend/dist
-RUN cargo build --release --bin rust4ai
+RUN cargo build --release --bin rust4ai --bin migrate
 
 ############################
 # Stage 4: minimal runtime
@@ -41,7 +41,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY --from=builder /app/target/release/rust4ai /usr/local/bin/rust4ai
+COPY --from=builder /app/target/release/migrate /usr/local/bin/migrate
 COPY backend/migrations ./migrations
 ENV RUST_LOG=info
 EXPOSE 8080
-CMD ["rust4ai"]
+CMD ["sh", "-c", "migrate && rust4ai"]
