@@ -7,13 +7,13 @@ FROM node:20-alpine AS frontend-builder
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
-COPY frontend/ ./
+COPY frontend/ .
 RUN npm run build
 
 ############################
 # Stage 2: cargo-chef plan
 ############################
-FROM lukemathwalker/cargo-chef:latest-rust-1.83 AS chef
+FROM lukemathwalker/cargo-chef:latest-rust-1.91 AS chef
 WORKDIR /app
 
 FROM chef AS planner
