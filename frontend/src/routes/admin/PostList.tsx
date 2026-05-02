@@ -77,7 +77,7 @@ export default function PostList() {
                 }`}
                 title={post.featured ? 'Remove from featured' : 'Add to featured'}
               >
-                {post.featured ? '&#9733; Featured' : '&#9734; Feature'}
+                {post.featured ? '★ Featured' : '☆ Feature'}
               </button>
               <span
                 className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
