@@ -135,20 +135,12 @@ async fn main() -> anyhow::Result<()> {
     let mut app = Router::new()
         .route("/healthz", get(|| async { "ok" }));
 
-    // Rate limiter for auth routes: 5 requests per 60 seconds per IP
-    let auth_rate_limit = GovernorConfigBuilder::default()
-        .per_second(12)
-        .burst_size(5)
-        .finish()
-        .expect("Failed to build auth rate limiter config");
-
     // Only mount auth routes if FutureAuth is configured
     if app_state.auth.is_some() {
         app = app.merge(
             futureauth::axum::auth_router::<state::AppState>(
                 app_state.auth.clone().unwrap(),
-            )
-            .layer(GovernorLayer::new(auth_rate_limit)),
+            ),
         );
     }
 
