@@ -238,11 +238,14 @@ pub async fn generate_image(
     });
 
     let sf_client = starflask::Client::new(api_key);
+    tracing::info!("creating starflask image job: prompt={:?} style={:?}", req.prompt, req.style);
+
     let job = sf_client.create_job("image", Some(payload)).await
         .map_err(|e| AppError::BadRequest(format!("Failed to create starflask job: {e}")))?;
 
     let job_id = job.get_id()
         .ok_or_else(|| AppError::BadRequest("starflask returned a job with no ID".into()))?;
+    tracing::info!("starflask job created: id={job_id}");
 
     let result = sf_client.wait_for_job(
         job_id,
@@ -251,9 +254,23 @@ pub async fn generate_image(
     ).await
         .map_err(|e| AppError::BadRequest(format!("starflask job failed: {e}")))?;
 
-    let image_url = result.extra.get("url")
+    tracing::info!("starflask job finished: status={:?} keys={:?}",
+        result.status, result.extra.keys().collect::<Vec<_>>());
+
+    if result.status.as_deref() == Some("failed") {
+        let err_msg = result.extra.get("error")
+            .and_then(|v| v.as_str())
+            .unwrap_or("unknown error");
+        return Err(AppError::BadRequest(format!("starflask job failed: {err_msg}")));
+    }
+
+    let image_url = result.extra.get("image_url")
+        .or_else(|| result.extra.get("url"))
         .and_then(|v| v.as_str())
-        .ok_or_else(|| AppError::BadRequest("No URL in starflask job result".into()))?;
+        .ok_or_else(|| {
+            let keys: Vec<_> = result.extra.keys().collect();
+            AppError::BadRequest(format!("No image URL in starflask job result (keys: {keys:?})"))
+        })?;
 
     // Download the generated image
     let client = reqwest::Client::new();
