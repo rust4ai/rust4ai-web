@@ -254,22 +254,29 @@ pub async fn generate_image(
     ).await
         .map_err(|e| AppError::BadRequest(format!("starflask job failed: {e}")))?;
 
-    tracing::info!("starflask job finished: status={:?} keys={:?}",
-        result.status, result.extra.keys().collect::<Vec<_>>());
+    tracing::info!("starflask job finished: status={:?} extra={:?}",
+        result.status, result.extra);
 
     if result.status.as_deref() == Some("failed") {
         let err_msg = result.extra.get("error")
             .and_then(|v| v.as_str())
             .unwrap_or("unknown error");
-        return Err(AppError::BadRequest(format!("starflask job failed: {err_msg}")));
+        return Err(AppError::BadRequest(format!("Image generation failed: {err_msg}")));
     }
 
-    let image_url = result.extra.get("image_url")
-        .or_else(|| result.extra.get("url"))
-        .and_then(|v| v.as_str())
+    // API returns { status, result: { image_url, ... }, error, ... }
+    // The starflask crate flattens non-id/status fields into `extra`
+    let result_obj = result.extra.get("result");
+    let image_url = result_obj
+        .and_then(|r| r.get("image_url")).and_then(|v| v.as_str())
+        .or_else(|| result_obj.and_then(|r| r.get("url")).and_then(|v| v.as_str()))
         .ok_or_else(|| {
-            let keys: Vec<_> = result.extra.keys().collect();
-            AppError::BadRequest(format!("No image URL in starflask job result (keys: {keys:?})"))
+            tracing::error!("no image_url in starflask result: {:?}", result.extra);
+            AppError::BadRequest(format!(
+                "No image URL in starflask result. status={:?}, error={:?}",
+                result.status,
+                result.extra.get("error"),
+            ))
         })?;
 
     // Download the generated image
