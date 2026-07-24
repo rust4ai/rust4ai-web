@@ -5,6 +5,7 @@ const links = [
   { to: '/tutorials', label: 'Learn' },
   { to: '/projects', label: 'Featured' },
   { to: '/newsletter', label: 'Newsletter' },
+  { to: 'https://metalcraftai.com', label: 'Metalcraft', external: true },
 ]
 
 export default function Nav() {
@@ -17,11 +18,24 @@ export default function Nav() {
           rust4ai
         </Link>
         <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-ink mr-auto ml-16">
-          {links.map((l) => (
-            <Link key={l.to} to={l.to} className="hover:opacity-60 transition-opacity">
-              {l.label}
-            </Link>
-          ))}
+          {links.map((l) =>
+            l.external ? (
+              <a
+                key={l.to}
+                href={l.to}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 hover:opacity-60 transition-opacity"
+              >
+                {l.label}
+                <span aria-hidden className="text-xs text-sand-dark">↗</span>
+              </a>
+            ) : (
+              <Link key={l.to} to={l.to} className="hover:opacity-60 transition-opacity">
+                {l.label}
+              </Link>
+            ),
+          )}
         </nav>
         <button
           onClick={() => setOpen(!open)}
@@ -35,11 +49,25 @@ export default function Nav() {
       </div>
       {open && (
         <nav className="md:hidden border-t border-ink/5 px-8 py-4 flex flex-col gap-4 text-[15px] font-medium text-ink">
-          {links.map((l) => (
-            <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="hover:opacity-60 transition-opacity">
-              {l.label}
-            </Link>
-          ))}
+          {links.map((l) =>
+            l.external ? (
+              <a
+                key={l.to}
+                href={l.to}
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center gap-1 hover:opacity-60 transition-opacity"
+              >
+                {l.label}
+                <span aria-hidden className="text-xs text-sand-dark">↗</span>
+              </a>
+            ) : (
+              <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="hover:opacity-60 transition-opacity">
+                {l.label}
+              </Link>
+            ),
+          )}
         </nav>
       )}
     </header>

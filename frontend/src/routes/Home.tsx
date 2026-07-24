@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '../lib/api'
 import HeroSection from '../components/HeroSection'
 import VisionSection from '../components/VisionSection'
+import MetalcraftBand from '../components/MetalcraftBand'
 import FeaturedTutorials from '../components/FeaturedTutorials'
 import FeaturedProjects from '../components/FeaturedProjects'
 import { useSearchParams } from 'react-router-dom'
@@ -47,6 +48,8 @@ export default function Home() {
       />
 
       <VisionSection />
+
+      <MetalcraftBand />
 
       <FeaturedTutorials tutorials={tutorials ?? []} />
 
